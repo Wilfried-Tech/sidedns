@@ -1,0 +1,51 @@
+[package]
+name = "sidedns-core"
+description.workspace = true
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+publish = true
+
+
+[lib]
+name = "sidedns_core"
+path = "src/lib.rs"
+
+[dependencies]
+anyhow.workspace = true
+async-trait.workspace = true
+confy.workspace = true
+daemon-kit.workspace = true
+dirs.workspace = true
+hickory-resolver.workspace = true
+hickory-server.workspace = true
+interprocess.workspace = true
+rcgen.workspace = true
+rustls-pemfile.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tokio-rustls.workspace = true
+tokio-util.workspace = true
+regex.workspace = true
+glob.workspace = true
+tracing.workspace = true
+tracing-appender.workspace = true
+tracing-subscriber.workspace = true
+dashmap.workspace = true
+arc-swap.workspace = true
+hyper.workspace = true
+hyper-util.workspace = true
+http-body-util.workspace = true
+sha1.workspace = true
+
+[dev-dependencies]
+uuid.workspace = true
+tempfile.workspace = true
+
+
+[target.'cfg(windows)'.dependencies]
+widestring = { workspace = true }

@@ -1,0 +1,150 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      prerelease:
+        default: false
+        type: boolean
+      draft:
+        default: false
+        type: boolean
+
+permissions:
+  contents: write
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+  BINARY_NAME: sidedns
+
+jobs:
+  changelog:
+    name: Changelog
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      body: ${{ steps.cliff.outputs.content }}
+      tag: ${{ steps.check_tag.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Get Cargo version
+        id: version
+        run: |
+          VERSION=$(sed -n '/^\[workspace\.package\]/,/^\[/p' Cargo.toml | grep '^version' | head -n 1 | cut -d '"' -f 2)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          TAG="v${{ steps.version.outputs.version }}"
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Le tag $TAG existe déjà. Annulation pour éviter d'écraser une release."
+            exit 1
+          fi
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+      - name: Generate changelog
+        id: cliff
+        uses: tj-actions/git-cliff@v2
+        with:
+          template-config: cliff.toml
+          git-cliff-version: latest
+          output: CHANGELOG.md
+          args: --latest --strip header
+
+  build:
+    name: Build / ${{ matrix.target }}
+    needs: [changelog]
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            runner: ubuntu-latest
+            archive: tar.gz
+          - target: x86_64-unknown-linux-musl
+            runner: ubuntu-latest
+            archive: tar.gz
+            cross: true
+          - target: aarch64-unknown-linux-gnu
+            runner: ubuntu-latest
+            archive: tar.gz
+            cross: true
+          - target: x86_64-apple-darwin
+            runner: macos-latest
+            archive: tar.gz
+          - target: aarch64-apple-darwin
+            runner: macos-latest
+            archive: tar.gz
+          - target: x86_64-pc-windows-msvc
+            runner: windows-latest
+            archive: zip
+            ext: .exe
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
+      - name: Install cross
+        if: matrix.cross
+        uses: taiki-e/install-action@cross
+      - name: Build (cross)
+        if: matrix.cross
+        run: cross build --release --target ${{ matrix.target }} -p sidedns
+      - name: Build (native)
+        if: "!matrix.cross"
+        run: cargo build --release --target ${{ matrix.target }} -p sidedns
+      - name: Package (tar.gz)
+        if: matrix.archive == 'tar.gz'
+        run: |
+          BIN=target/${{ matrix.target }}/release/${{ env.BINARY_NAME }}
+          ARCHIVE=${{ env.BINARY_NAME }}-${{ needs.changelog.outputs.version }}-${{ matrix.target }}.tar.gz
+          chmod +x $BIN
+          tar -czf $ARCHIVE -C target/${{ matrix.target }}/release ${{ env.BINARY_NAME }}
+          echo "ASSET=$ARCHIVE" >> $GITHUB_ENV
+      - name: Package (zip)
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: |
+          $bin  = "target/${{ matrix.target }}/release/${{ env.BINARY_NAME }}.exe"
+          $name = "${{ env.BINARY_NAME }}-${{ needs.changelog.outputs.version }}-${{ matrix.target }}.zip"
+          Compress-Archive -Path $bin -DestinationPath $name
+          echo "ASSET=$name" | Out-File -FilePath $env:GITHUB_ENV -Append
+      - name: Generate checksum
+        shell: bash
+        run: |
+          sha256sum ${{ env.ASSET }} > ${{ env.ASSET }}.sha256 2>/dev/null || \
+          shasum -a 256 ${{ env.ASSET }} > ${{ env.ASSET }}.sha256
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}
+          path: |
+            ${{ env.ASSET }}
+            ${{ env.ASSET }}.sha256
+
+  github-release:
+    name: GitHub Release
+    needs: [changelog, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ needs.changelog.outputs.tag }}
+          tag_name: ${{ needs.changelog.outputs.tag }}
+          body: ${{ needs.changelog.outputs.body }}
+          draft: ${{ inputs.draft }}
+          prerelease: ${{ inputs.prerelease }}
+          files: artifacts/**

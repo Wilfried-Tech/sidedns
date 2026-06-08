@@ -1,0 +1,86 @@
+[package]
+name = "sidedns"
+description.workspace = true
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+homepage.workspace = true
+documentation.workspace = true
+categories.workspace = true
+publish = true
+
+[[bin]]
+name = "sidedns"
+path = "src/main.rs"
+
+[dependencies]
+sidedns-cli = { path = "./cli" }
+anyhow.workspace = true
+tokio.workspace = true
+
+[workspace]
+members = ["core", "cli", "."]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+description = "SideDNS — local DNS routing for developers"
+authors = [
+    "Wilfried-Tech <wilfriedtech.dev@gmail.com>",
+    "SideDNS Contributors <https://github.com/sidedns/sidedns/graphs/contributors>",
+]
+license = "MIT"
+repository = "https://github.com/Wilfried-Tech/sidedns"
+homepage = "https://github.com/Wilfried-Tech/sidedns"
+documentation = "https://github.com/Wilfried-Tech/sidedns"
+categories = ["command-line-utilities"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+opt-level = 3
+strip = "symbols"
+
+[workspace.dependencies]
+serde = { version = "1.0.228", features = ["derive"] }
+anyhow = "1.0.102"
+hickory-server = "0.24.4"
+hickory-resolver = { version = "0.24.4", features = ["tokio-runtime"] }
+interprocess = { version = "2.4.2", features = ["tokio"] }
+serde_json = "1.0.150"
+tokio = { version = "1.52.3", features = [
+    "io-std",
+    "signal",
+    "tracing",
+    "process",
+] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tracing-appender = "0.2"
+clap = { version = "4.6.1", features = ["derive", "cargo"] }
+uuid = { version = "1.23.2", features = ["v4"] }
+async-trait = "0.1.89"
+tokio-util = "0.7.18"
+thiserror = "2.0.18"
+dirs = "6"
+confy = { version = "2", features = ["toml_conf"] }
+rcgen = { version = "0.14.8", features = ["x509-parser", "default"] }
+tokio-rustls = { version = "0.26", features = ["ring"] }
+rustls-pemfile = "2"
+daemon-kit = "0.1.4"
+sysinfo = "0.39"
+widestring = "1.2.1"
+listeners = "0.5.1"
+regex = "1.12.3"
+glob = "0.3.3"
+arc-swap = "1.9.1"
+dashmap = "6.2.1"
+hyper = { version = "1.10.1", features = ["server", "http1", "client"] }
+hyper-util = { version = "0.1.20", features = ["tokio"] }
+http-body-util = "0.1.3"
+tempfile = "3.27.0"
+sha1 = "0.11.0"
+inquire = { version = "0.9.4", features = [] }

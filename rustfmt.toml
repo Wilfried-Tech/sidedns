@@ -1,0 +1,7 @@
+max_width = 100
+
+reorder_imports = true
+
+match_block_trailing_comma = true
+
+style_edition = "2024"

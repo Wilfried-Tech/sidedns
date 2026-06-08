@@ -1,0 +1,48 @@
+[changelog]
+header = """
+# Changelog\n
+All notable changes to SideDNS are documented here.
+Format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).\n
+"""
+body = """
+{% if version %}\
+## [{{ version | trim_start_matches(pat="v") }}] — {{ timestamp | date(format="%Y-%m-%d") }}
+{% else %}\
+## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group | upper_first }}
+{% for commit in commits %}
+- {% if commit.breaking %}[**BREAKING**] {% endif %}{{ commit.message | upper_first }} ([`{{ commit.id | truncate(length=7, end="") }}`](https://github.com/Wilfried-Tech/sidedns/commit/{{ commit.id }}))\
+{% endfor %}
+{% endfor %}\n
+"""
+footer = ""
+trim = true
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+
+commit_parsers = [
+  { message = "^feat",     group = "Features"         },
+  { message = "^fix",      group = "Bug Fixes"        },
+  { message = "^perf",     group = "Performance"      },
+  { message = "^refactor", group = "Refactoring"      },
+  { message = "^docs",     group = "Documentation"    },
+  { message = "^test",     group = "Testing"          },
+  { message = "^chore",    group = "Miscellaneous"    },
+  { message = "^ci",       group = "CI"               },
+  { message = "^build",    group = "Build"            },
+  { body = ".*security",   group = "Security"         },
+  { message = "^revert",   skip = true                },
+]
+
+filter_commits = false
+tag_pattern = "v[0-9]*"
+skip_tags = "v0\\.1\\.0"
+ignore_tags = ""
+topo_order = false
+sort_commits = "oldest"

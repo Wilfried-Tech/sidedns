@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions & Discussions
+    url: https://github.com/Wilfried-Tech/sidedns/discussions
+    about: Ask questions and share ideas in Discussions rather than Issues.
+  - name: Security vulnerability
+    url: https://github.com/Wilfried-Tech/sidedns/security/advisories/new
+    about: Please report security vulnerabilities privately.
