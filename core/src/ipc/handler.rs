@@ -27,7 +27,7 @@ impl IpcHandler for AppState {
             } => {
                 validate_domain!(domain);
                 let rule = self.store.add(DnsRule::new(domain.clone(), target, https));
-                tracing::info!("Rule added: {rule}");
+                tracing::info!("Rule {rule} added");
                 self.events.send(DnsEvent::RuleAdded(rule)).ok();
                 IpcResponse::Ok
             },
@@ -41,7 +41,7 @@ impl IpcHandler for AppState {
                 let rule = self
                     .store
                     .add_ephemeral(DnsRule::new(domain.clone(), target, https));
-                tracing::info!("Ephemeral rule added: {rule}");
+                tracing::info!("Ephemeral rule {rule} added");
                 self.events.send(DnsEvent::EphemeralAdded(rule)).ok();
                 IpcResponse::Ok
             },
@@ -50,8 +50,8 @@ impl IpcHandler for AppState {
                 validate_domain!(domain);
                 let removed = self.store.remove(&domain);
                 if let Some(rule) = removed {
+                    tracing::info!("Rule {rule} removed");
                     self.events.send(DnsEvent::RuleRemoved(rule)).ok();
-                    tracing::info!("Rule removed");
                     IpcResponse::Ok
                 } else {
                     IpcResponse::Error(format!("No rule found for '{domain}'"))
@@ -62,8 +62,8 @@ impl IpcHandler for AppState {
                 validate_domain!(domain);
                 let removed = self.store.remove_ephemeral(&domain);
                 if let Some(rule) = removed {
+                    tracing::info!("Ephemeral rule {rule} removed");
                     self.events.send(DnsEvent::EphemeralRemoved(rule)).ok();
-                    tracing::info!("Ephemeral rule removed");
                     IpcResponse::Ok
                 } else {
                     IpcResponse::Error(format!("No ephemeral rule found for '{domain}'"))

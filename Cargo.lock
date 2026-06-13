@@ -1072,6 +1072,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d98f6fed1fde3f8c21bc40a1abb88dd75e67924f9cffc3ef95607bad8017f8e2"
 
 [[package]]
+name = "is_superuser"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "71edf56d0e13edb73f44809aadd0929d245d684ec20db9d0f00a6c3f2c150f64"
+dependencies = [
+ "libc",
+ "winapi",
+]
+
+[[package]]
 name = "is_terminal_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1787,7 +1797,7 @@ checksum = "f8fadd59c855ef2080decdef8ff161eb6661b86933c9d82e5ba29dc602a55aba"
 
 [[package]]
 name = "sidedns"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "sidedns-cli",
@@ -1796,13 +1806,14 @@ dependencies = [
 
 [[package]]
 name = "sidedns-cli"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "clap",
  "daemon-kit",
  "dirs",
  "inquire",
+ "is_superuser",
  "listeners",
  "sidedns-core",
  "sysinfo",
@@ -1813,7 +1824,7 @@ dependencies = [
 
 [[package]]
 name = "sidedns-core"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "anyhow",
  "arc-swap",

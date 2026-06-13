@@ -1,4 +1,4 @@
-use anyhow::{Result, bail};
+use anyhow::Result;
 use clap::Parser;
 use daemon_kit::{Daemon, DaemonConfig};
 use sidedns_core::{APP_DATA_DIR, APP_NAME, DAEMON_ENV, IpcClient, logging};
@@ -21,6 +21,11 @@ pub fn build_daemon() -> Daemon {
 }
 
 pub async fn run_daemon(background: bool) -> Result<()> {
+    anyhow::ensure!(
+        is_superuser::is_superuser(),
+        "sidedns daemon start must be run as root/administrator"
+    );
+
     if !background {
         logging::init(true);
         println!("Starting sidedns daemon (foreground)...");
@@ -28,7 +33,7 @@ pub async fn run_daemon(background: bool) -> Result<()> {
         return Ok(());
     }
 
-    println!("Starting sidedns daemon...");
+    println!("Starting sidedns daemon (background)...");
 
     let exe = std::env::current_exe()?;
 
@@ -58,7 +63,7 @@ pub async fn run_daemon(background: bool) -> Result<()> {
         }
     }
 
-    bail!("Daemon did not start within 10 seconds")
+    anyhow::bail!("Daemon did not start within 10 seconds")
 }
 
 /// We're in a process that was spawned to run the daemon.

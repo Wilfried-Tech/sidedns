@@ -1,7 +1,8 @@
 [package]
 name = "sidedns"
+version = "0.1.1"
+publish = true
 description.workspace = true
-version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -9,23 +10,21 @@ repository.workspace = true
 homepage.workspace = true
 documentation.workspace = true
 categories.workspace = true
-publish = true
 
 [[bin]]
 name = "sidedns"
 path = "src/main.rs"
 
 [dependencies]
-sidedns-cli = { path = "./cli" }
+sidedns-cli = { version = "=0.1.1", path = "cli" }
 anyhow.workspace = true
 tokio.workspace = true
 
 [workspace]
-members = ["core", "cli", "."]
+members = ["core", "cli"]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0"
 edition = "2024"
 description = "SideDNS — local DNS routing for developers"
 authors = [
@@ -37,6 +36,7 @@ repository = "https://github.com/Wilfried-Tech/sidedns"
 homepage = "https://github.com/Wilfried-Tech/sidedns"
 documentation = "https://github.com/Wilfried-Tech/sidedns"
 categories = ["command-line-utilities"]
+
 
 [profile.release]
 lto = true
@@ -84,3 +84,4 @@ http-body-util = "0.1.3"
 tempfile = "3.27.0"
 sha1 = "0.11.0"
 inquire = { version = "0.9.4", features = [] }
+is_superuser = "1.0.1"

@@ -45,6 +45,7 @@ pub async fn run(args: RunArgs) -> Result<()> {
         );
         if !wait_for_port(ip, p, detect_timeout).await {
             tracing::error!("{ip}:{p} did not open within {detect_timeout} seconds");
+            child.kill().await?;
             std::process::exit(1)
         }
         Ok::<_, anyhow::Error>(p)
@@ -52,6 +53,7 @@ pub async fn run(args: RunArgs) -> Result<()> {
         tracing::info!("Detecting address (waiting {detect_timeout}s)...");
         if child.id().is_none() {
             tracing::error!("Failed to get PID of the launched command");
+            child.kill().await?;
             std::process::exit(1)
         }
         let pid = child.id().unwrap();
@@ -64,6 +66,7 @@ pub async fn run(args: RunArgs) -> Result<()> {
                     Try running the command separately to debug, or specify the port manually with --port",
                     command[0]
                 );
+                child.kill().await?;
                 std::process::exit(1)
             },
             1 => {

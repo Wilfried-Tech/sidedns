@@ -1,19 +1,22 @@
 [package]
 name = "sidedns-cli"
+version = "0.1.1"
+publish = true
 description.workspace = true
-version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
-publish = true
+homepage.workspace = true
+documentation.workspace = true
+categories.workspace = true
 
-[lib]
-name = "sidedns_cli"
-path = "src/lib.rs"
+[[bin]]
+name = "sidedns"
+path = "src/main.rs"
 
 [dependencies]
-sidedns-core = { path = "../core" }
+sidedns-core = { version = "=0.1.1", path = "../core" }
 anyhow.workspace = true
 clap.workspace = true
 daemon-kit.workspace = true
@@ -24,3 +27,4 @@ dirs.workspace = true
 listeners.workspace = true
 tracing.workspace = true
 inquire.workspace = true
+is_superuser.workspace = true

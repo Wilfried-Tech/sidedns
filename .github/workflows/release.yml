@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
-      body: ${{ steps.cliff.outputs.content }}
+      body: ${{ steps.changelog.outputs.content }}
       tag: ${{ steps.check_tag.outputs.tag }}
     steps:
       - uses: actions/checkout@v4
@@ -33,7 +33,7 @@ jobs:
       - name: Get Cargo version
         id: version
         run: |
-          VERSION=$(sed -n '/^\[workspace\.package\]/,/^\[/p' Cargo.toml | grep '^version' | head -n 1 | cut -d '"' -f 2)
+          VERSION=$(sed -n '/^\[package\]/,/^\[/p' Cargo.toml | grep '^version' | head -n 1 | cut -d '"' -f 2)
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
       - name: Check if tag exists
         id: check_tag
@@ -45,13 +45,17 @@ jobs:
           fi
           echo "tag=$TAG" >> "$GITHUB_OUTPUT"
       - name: Generate changelog
-        id: cliff
         uses: tj-actions/git-cliff@v2
         with:
           template-config: cliff.toml
           git-cliff-version: latest
           output: CHANGELOG.md
           args: --latest --strip header
+      - name: Set Output
+        id: changelog
+        run: |
+          CONTENT="$(cat CHANGELOG.md)"
+          echo "content=$CONTENT" >> "$GITHUB_OUTPUT"
 
   build:
     name: Build / ${{ matrix.target }}

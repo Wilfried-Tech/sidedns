@@ -1,17 +1,15 @@
 [package]
 name = "sidedns-core"
+version = "0.1.1"
+publish = true
 description.workspace = true
-version.workspace = true
 edition.workspace = true
 authors.workspace = true
 license.workspace = true
 repository.workspace = true
-publish = true
-
-
-[lib]
-name = "sidedns_core"
-path = "src/lib.rs"
+homepage.workspace = true
+documentation.workspace = true
+categories.workspace = true
 
 [dependencies]
 anyhow.workspace = true
@@ -45,7 +43,6 @@ sha1.workspace = true
 [dev-dependencies]
 uuid.workspace = true
 tempfile.workspace = true
-
 
 [target.'cfg(windows)'.dependencies]
 widestring = { workspace = true }

@@ -4,6 +4,11 @@ use crate::cli::{CERT_TRUST_DEFAULT_ARGS, CertInstallArgs, CertTrustArgs};
 use sidedns_core::{cert_path, certs};
 
 pub async fn install(args: CertInstallArgs) -> Result<()> {
+    anyhow::ensure!(
+        is_superuser::is_superuser() && args.trust,
+        "sidedns cert --trust must be run as root/administrator"
+    );
+
     if certs::Ca::is_installed() && !args.force {
         println!("{} Already Installed", sidedns_core::CERT_NAME);
         println!("Use '--force' to re-generate and re-install the certificate.");
@@ -45,6 +50,11 @@ pub async fn uninstall() -> Result<()> {
         return Ok(());
     }
 
+    anyhow::ensure!(
+        is_superuser::is_superuser(),
+        "sidedns cert uninstall must be run as root/administrator"
+    );
+
     println!("Untrusting {} from all stores...", sidedns_core::CERT_NAME);
     untrust(CERT_TRUST_DEFAULT_ARGS.clone()).await?;
 
@@ -67,6 +77,12 @@ pub async fn trust(args: CertTrustArgs) -> Result<()> {
         );
         return Ok(());
     }
+
+    anyhow::ensure!(
+        is_superuser::is_superuser(),
+        "sidedns cert trust must be run as root/administrator"
+    );
+
     let stores = certs::trust::available_stores();
     if stores.is_empty() {
         println!("No trust stores available to trust the certificate.");
@@ -97,6 +113,12 @@ pub async fn untrust(args: CertTrustArgs) -> Result<()> {
         );
         return Ok(());
     }
+
+    anyhow::ensure!(
+        is_superuser::is_superuser(),
+        "sidedns cert untrust must be run as root/administrator"
+    );
+
     let stores = certs::trust::available_stores();
     if stores.is_empty() {
         println!("No trust stores available to untrust the certificate.");
